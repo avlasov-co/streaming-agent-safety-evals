@@ -35,3 +35,20 @@ This benchmark demonstrates how dynamic evaluations can reveal failures that sta
 ### Safety tradeoff
 
 ![Abstention tradeoff](figures/abstention_tradeoff.png)
+
+## Report and reproduction
+
+- [Experimental report](docs/experimental_report.md)
+- [Safety relevance notes](docs/safety_relevance.md)
+- [Fellowship application summary](docs/fellowship_application_summary.md)
+
+Reproduce the benchmark:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python -m src.run_eval --n-per-regime 3000 --seed 42 --bootstrap 250
+python -m src.plot_results
+python -m src.generate_report
+python -m pytest -q
