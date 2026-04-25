@@ -1,0 +1,5 @@
+{
+  "n_per_regime": 3000,
+  "seed": 42,
+  "bootstrap": 250
+}
