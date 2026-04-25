@@ -1,0 +1,9 @@
+[project]
+name = "streaming-agent-safety-evals"
+version = "0.1.0"
+description = "No-training benchmark for evaluating agentic decision systems under distribution shift."
+requires-python3 = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
