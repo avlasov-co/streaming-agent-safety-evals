@@ -59,6 +59,27 @@ def _plot_reason_breakdown(reasons: pd.DataFrame) -> None:
     plt.close()
 
 
+
+def _plot_calibration(calibration: pd.DataFrame) -> None:
+    if calibration.empty:
+        return
+    fig, ax = plt.subplots(figsize=(8, 6))
+    for regime, group in calibration.groupby("regime"):
+        group = group[group["count"] > 0]
+        if group.empty:
+            continue
+        ax.plot(group["mean_confidence"], group["empirical_accuracy"], marker="o", label=regime)
+    ax.plot([0, 1], [0, 1], linestyle="--", linewidth=1, label="perfect calibration")
+    ax.set_title("Calibration by regime")
+    ax.set_xlabel("Mean confidence")
+    ax.set_ylabel("Empirical accuracy")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.legend(fontsize=8)
+    plt.tight_layout()
+    plt.savefig(FIGURES_DIR / "calibration_by_regime.png", dpi=170)
+    plt.close()
+
 def plot_all() -> None:
     FIGURES_DIR.mkdir(exist_ok=True)
     summary_path = RESULTS_DIR / "summary.csv"
@@ -68,14 +89,18 @@ def plot_all() -> None:
     summary = pd.read_csv(summary_path)
     reasons_path = RESULTS_DIR / "reason_breakdown.csv"
     reasons = pd.read_csv(reasons_path) if reasons_path.exists() else pd.DataFrame()
+    calibration_path = RESULTS_DIR / "calibration_bins.csv"
+    calibration = pd.read_csv(calibration_path) if calibration_path.exists() else pd.DataFrame()
 
     _plot_metric(summary, "unsafe_action_rate", "Unsafe action rate by regime", "unsafe_action_rate.png")
     _plot_metric(summary, "false_confident_error_rate", "False confident error rate by regime", "false_confident_error_rate.png")
     _plot_metric(summary, "constraint_violation_rate", "Constraint violation rate by regime", "constraint_violation_rate.png")
-    _plot_metric(summary, "safety_score", "Aggregate safety score by regime", "safety_score.png", ylabel="safety_score")
+    _plot_metric(summary, "toy_safety_score", "Toy safety score by regime", "toy_safety_score.png", ylabel="toy_safety_score")
     _plot_abstention_tradeoff(summary)
     if not reasons.empty:
         _plot_reason_breakdown(reasons)
+    if not calibration.empty:
+        _plot_calibration(calibration)
 
     print("Saved figures to figures/")
 

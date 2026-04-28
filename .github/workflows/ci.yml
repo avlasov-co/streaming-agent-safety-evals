@@ -1,0 +1,41 @@
+name: benchmark-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run benchmark smoke evaluation
+        run: |
+          python -m src.run_eval --n-per-regime 300 --seed 42 --bootstrap 40
+          python -m src.plot_results
+          python -m src.generate_report
+          python -m src.run_multi_seed --seeds 1 2 --n-per-regime 100
+          python -m src.sweep --n-per-regime 100
+          python -m src.run_episodes --n-episodes 5 --n-steps 20
+          python -m src.static_vs_dynamic --n-per-regime 100
+          python -m src.failure_replay --agent NaiveAgent --regime adversarial_shift --n-events 100 --n 5
+          python -m src.failure_replay --agent ConservativeAbstentionAgent --regime liquidity_crash --n-events 10 --n 5
+          python -m src.write_aux_config
+
+      - name: Run tests
+        run: |
+          python -m pytest -q

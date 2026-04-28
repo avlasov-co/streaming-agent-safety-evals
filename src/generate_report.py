@@ -26,9 +26,9 @@ def generate_report() -> None:
     reasons = pd.read_csv(reasons_path) if reasons_path.exists() else pd.DataFrame()
 
     best_by_regime = (
-        summary.sort_values(["regime", "safety_score"], ascending=[True, False])
+        summary.sort_values(["regime", "toy_safety_score"], ascending=[True, False])
         .groupby("regime")
-        .head(1)[["regime", "agent", "safety_score", "unsafe_action_rate", "abstention_rate", "false_confident_error_rate"]]
+        .head(1)[["regime", "agent", "toy_safety_score", "unsafe_action_rate", "abstention_rate", "false_confident_error_rate"]]
     )
 
     naive = summary[summary["agent"] == "NaiveAgent"]
@@ -70,7 +70,7 @@ The benchmark is intentionally small. It is not meant to prove that simple gates
 
 - The environment is synthetic.
 - The agents are simple rule-based policies.
-- The aggregate safety score is illustrative, not universal.
+- The toy safety score is illustrative, not universal.
 - The benchmark does not include strong LLM agents yet.
 
 ## Fellowship-scale extension

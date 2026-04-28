@@ -10,7 +10,7 @@ Many AI evaluations are static. They measure model performance on a fixed datase
 
 Deployed AI systems may face latency, noise, adversarial inputs, distribution shift, uncertain feedback, and pressure to act quickly. In those settings, a model can appear competent in normal conditions but become unsafe when confidence remains high while correctness drops.
 
-## Prototype
+## Existing prototype
 
 This repository implements a minimal no-training benchmark. It uses synthetic streaming events and simple policy agents to study safety-relevant failure modes.
 
@@ -22,41 +22,13 @@ The benchmark compares:
 - a monitor-then-act agent that uses a separate risk score
 - a conservative abstention agent that acts only under favorable conditions
 
-The environment contains multiple regimes:
+## Fellowship-scale extension
 
-- normal
-- volatile
-- adversarial shift
-- latency spike
-- liquidity crash
+The current repository already includes a runnable core benchmark, lightweight risk-budget episodes, threshold sweeps, multi-seed evaluation, static-vs-dynamic comparison, calibration artifacts, and failure replay.  A fellowship-scale version would expand those first-pass components into a deeper agent safety evaluation framework:
 
-## Safety metrics
-
-The benchmark measures:
-
-- unsafe action rate
-- false confident error rate
-- constraint violation rate
-- abstention rate
-- coverage
-- accuracy when acted
-- aggregate toy safety score
-
-## Expected fellowship extension
-
-A fellowship-scale version would extend this prototype in several ways:
-
-1. Replace simple policy agents with stronger LLM-based or tool-using agents.
-2. Add richer sequential tasks where agents must plan over multiple steps.
-3. Evaluate oversight methods such as uncertainty gating, policy constraints, monitor agents, and deferral policies.
-4. Study whether static evaluations predict dynamic deployment failures.
-5. Release an open benchmark, metrics suite, and research writeup.
-
-## Expected output
-
-- Open-source benchmark
-- Baseline agents
-- Safety metrics suite
-- Experimental report
-- Dataset/simulation generator
-- Extension path for LLM-based agent evaluations
+1. Replace or supplement rule-based agents with LLM/tool-using agents.
+2. Expand the existing episode system into richer sequential tasks where agents must plan, revise actions, recover after shift, and decide when to defer.
+3. Add an explicit `ASK_OVERSIGHT` action and evaluate oversight request rate, avoidable failure rate, and unnecessary oversight.
+4. Extend the existing static-vs-dynamic comparison with mixed-regime trajectories, drift detection, and stronger adversarial scenario families.
+5. Evaluate monitor agents, uncertainty gates, policy constraints, and counterfactual mitigation.
+6. Release an open benchmark, metrics suite, and research writeup.

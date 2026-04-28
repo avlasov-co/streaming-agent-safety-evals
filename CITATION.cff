@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+title: "Streaming Agent Safety Evaluations"
+message: "If you use this benchmark, please cite it as below."
+type: software
+authors:
+  - family-names: "Vlasov"
+    given-names: "Aleksander"
+year: 2026
+license: MIT
+repository-code: "https://github.com/avlasov-co/streaming-agent-safety-evals"
+keywords:
+  - ai-safety
+  - agent-evaluation
+  - distribution-shift
+  - robustness
+  - evals

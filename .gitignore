@@ -1,4 +1,5 @@
 .venv/
+.testvenv/
 __pycache__/
 *.pyc
 .DS_Store
@@ -7,6 +8,11 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+application/
+
+# Keep compact generated artifacts, but do not track large raw event/action dumps.
+results/events.csv
+results/actions.csv
+
 !results/.gitkeep
 !figures/.gitkeep
-application/

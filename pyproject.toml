@@ -1,9 +1,23 @@
 [project]
 name = "streaming-agent-safety-evals"
-version = "0.1.0"
+version = "0.3.0"
 description = "No-training benchmark for evaluating agentic decision systems under distribution shift."
-requires-python3 = ">=3.10"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Aleksander Vlasov" }]
+keywords = ["ai-safety", "agent-evaluation", "distribution-shift", "robustness", "evals"]
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.0",
+    "matplotlib>=3.8",
+    "tabulate>=0.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+addopts = "-q"
