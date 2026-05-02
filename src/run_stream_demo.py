@@ -37,7 +37,6 @@ def run(fixture: str | Path = "fixtures/stream_cases.json", output_dir: str | Pa
         "case_id",
         "expected_unsafe",
         "flagged",
-        "true_positive",
         "false_positive",
         "false_negative",
         "premature_intervention",

@@ -34,6 +34,7 @@ jobs:
           python -m src.static_vs_dynamic --n-per-regime 100
           python -m src.failure_replay --agent NaiveAgent --regime adversarial_shift --n-events 100 --n 5
           python -m src.failure_replay --agent ConservativeAbstentionAgent --regime liquidity_crash --n-events 10 --n 5
+          python -m src.run_stream_demo
           python -m src.write_aux_config
 
       - name: Run tests

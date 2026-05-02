@@ -43,3 +43,19 @@ The benchmark focuses on safety-relevant behavior:
 ## Bootstrap intervals
 
 The runner generates bootstrap confidence intervals for selected metrics. These intervals are not a substitute for deeper statistical analysis, but they make result variance visible instead of hiding it behind single numbers.
+
+
+## Incremental stream-monitor demo
+
+The repo also includes a small deterministic demo for real-time partial-output and tool-call-like monitoring. Cases live in `fixtures/stream_cases.json`. The runner `python -m src.run_stream_demo` feeds each event into `IncrementalSafetyMonitor` one at a time and stops when the monitor intervenes.
+
+The demo covers:
+
+- unsafe partial output that appears before a later refusal
+- unsafe content appearing late in an otherwise benign stream
+- unsafe phrases split across chunks, causing delayed detection
+- tool-call-like records that should be blocked before execution
+- a benign policy sentence that is intentionally false-positive flagged
+- a benign stream that should pass
+
+The monitor uses deterministic keyword/tool-pattern matching. That is intentionally limited. The useful artifact is the stream-processing interface, fixtures, confusion-matrix accounting, premature-intervention accounting, time-to-detect metric, and unsafe-prefix exposure metric.

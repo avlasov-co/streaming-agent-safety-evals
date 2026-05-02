@@ -20,6 +20,7 @@ Start here if you are reviewing the repository quickly.
 ## Methods and results
 
 - [Methodology](methodology.md)
+- [Incremental stream-monitor demo files](../fixtures/stream_cases.json)
 - [Experimental report](experimental_report.md)
 - [How to read the results](how_to_read_results.md)
 - [Failure taxonomy](failure_taxonomy.md)

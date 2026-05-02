@@ -2,6 +2,8 @@
 
 ## 0.3.0
 
+- Added incremental stream-demo metric names: `intervention_rate` and `valid_detection_rate`.
+- Added `premature_interventions` accounting so early stops before fixture-labelled unsafe evidence do not inflate valid detections.
 - Added multi-seed evaluation.
 - Added threshold sweep utility.
 - Added multi-step episode simulation.

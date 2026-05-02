@@ -1,7 +1,7 @@
 PYTHON ?= .venv/bin/python
 SYSTEM_PYTHON ?= python3
 
-.PHONY: setup install run run-fast plots report test multi-seed sweep episodes static-dynamic failure-replay aux-config smoke clean all
+.PHONY: setup install run run-fast plots report test multi-seed sweep episodes static-dynamic failure-replay stream-demo aux-config smoke clean all
 
 setup:
 	$(SYSTEM_PYTHON) -m venv .venv
@@ -37,10 +37,13 @@ static-dynamic:
 failure-replay:
 	$(PYTHON) -m src.failure_replay --agent NaiveAgent --regime adversarial_shift --n-events 300 --n 5
 
+stream-demo:
+	$(PYTHON) -m src.run_stream_demo
+
 aux-config:
 	$(PYTHON) -m src.write_aux_config
 
-smoke: run-fast plots report multi-seed sweep episodes static-dynamic failure-replay aux-config
+smoke: run-fast plots report multi-seed sweep episodes static-dynamic failure-replay stream-demo aux-config
 
 test:
 	$(PYTHON) -m pytest -q
@@ -50,4 +53,4 @@ clean:
 	rm -rf .pytest_cache __pycache__ src/__pycache__ tests/__pycache__
 	find . -name "*.pyc" -delete
 
-all: run plots report multi-seed sweep episodes static-dynamic failure-replay aux-config test
+all: run plots report multi-seed sweep episodes static-dynamic failure-replay stream-demo aux-config test

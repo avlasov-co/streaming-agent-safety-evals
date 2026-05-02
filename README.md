@@ -119,15 +119,15 @@ The core event-stream benchmark reports:
 The incremental stream-monitor demo reports:
 
 - `intervention_rate`: all fixture cases where the monitor stopped the stream, including true positives and false positives
-- `valid_detection_rate`: unsafe fixture cases correctly stopped by the monitor; this excludes benign false positives and premature interventions
-- `premature_interventions`: unsafe fixture cases where the monitor stopped before the fixture-labeled unsafe evidence appeared; these are not counted as true positives
+- `valid_detection_rate`: unsafe fixture cases correctly stopped after fixture-labelled unsafe evidence is available; this excludes benign false positives and premature interventions
+- `premature_interventions`: unsafe fixture cases where the monitor stopped before the first fixture-labelled unsafe evidence appeared
 - `time_to_detect_events`: event lag between the first unsafe evidence in the fixture and the monitor intervention
 - `unsafe_prefix_exposure_chars`: visible stream characters emitted from unsafe evidence through intervention
 - `false_positive_rate`: benign fixture cases blocked by the simple monitor
 - `false_negative_rate`: unsafe fixture cases missed by the monitor
 - `intervention_reason`: whether the intervention came from partial output or a tool-call-like event
 
-`intervention_rate` is not the same as detection quality. It answers “how often did the monitor stop anything?” `valid_detection_rate` answers “how often did it stop genuinely unsafe cases after unsafe evidence was actually visible?” Keeping both avoids making false positives and premature interventions look like successful detections.
+`intervention_rate` is not the same as detection quality. It answers “how often did the monitor stop anything?” `valid_detection_rate` answers “how often did it stop genuinely unsafe cases after unsafe evidence was actually present?” Keeping both avoids making false positives, and premature stops before evidence, look like successful detections.
 
 ## Reproduce core benchmark
 
@@ -161,11 +161,11 @@ results/stream_demo_events.csv
 
 Current fixture summary:
 
-| cases | true positives | false positives | false negatives | true negatives | intervention rate | valid detection rate | mean time-to-detect events | mean unsafe-prefix exposure chars |
-|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 6 | 4 | 1 | 0 | 1 | 0.833 | 1.000 | 0.5 | 35.75 |
+| cases | true positives | false positives | false negatives | true negatives | premature interventions | intervention rate | valid detection rate | mean time-to-detect events | mean unsafe-prefix exposure chars |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 6 | 4 | 1 | 0 | 1 | 0 | 0.833 | 1.000 | 0.5 | 35.75 |
 
-The false positive is intentional: the monitor blocks a benign policy sentence that mentions a dangerous phrase. This makes a concrete limitation visible instead of hiding it behind a perfect-looking toy result.
+The false positive is intentional: the monitor blocks a benign policy sentence that mentions a dangerous phrase. The metric code also tracks premature interventions separately so stops before fixture-labelled unsafe evidence do not inflate valid detections. This makes concrete limitations visible instead of hiding them behind a perfect-looking toy result.
 
 ## Reproduce all shipped artifacts
 
