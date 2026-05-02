@@ -6,7 +6,12 @@ A no-training benchmark for evaluating agentic decision systems under distributi
 
 This project tests a simple safety question: **what happens when an agent keeps acting confidently after the environment changes?**
 
-The benchmark uses synthetic streaming data and lightweight policy agents. It measures unsafe actions, false-confident errors, constraint violations, abstention, useful coverage, and the tradeoff between acting often and acting safely.
+The repo now contains two verified evaluation slices:
+
+1. **Core event-stream benchmark**: synthetic time-ordered decision events and lightweight policy agents. It measures unsafe actions, false-confident errors, constraint violations, abstention, useful coverage, and the tradeoff between acting often and acting safely.
+2. **Incremental stream-monitor demo**: deterministic partial-output and tool-call-like fixtures processed one event at a time. It measures time-to-detect, unsafe-prefix exposure, intervention reason, false positives, and false negatives.
+
+The second slice is intentionally small. It is a runnable stream-semantics demo, not a claim that keyword matching solves safety.
 
 This repository does **not** contain proprietary Polinash code, private datasets, model weights, trading logic, exchange integrations, API keys, or financial advice. It is a public research artifact focused on safety evaluation design.
 
@@ -43,6 +48,7 @@ The benchmark demonstrates an evaluation pattern for agentic systems: create dep
 - Compares always-act, confidence-threshold, risk-gated, monitor-based, and conservative abstention policies
 - Measures unsafe action rate, false-confident error rate, constraint violations, abstention, coverage, and a toy safety score
 - Includes generated results, plots, tests, documentation, and CI
+- Includes a deterministic incremental stream-monitor demo for partial outputs and tool-call-like events
 
 ## Example results
 
@@ -100,7 +106,7 @@ The simulator creates five regimes:
 
 ## Safety metrics
 
-The benchmark reports:
+The core event-stream benchmark reports:
 
 - `coverage`: how often the agent acts instead of abstaining
 - `accuracy_when_acted`: accuracy on non-abstained actions
@@ -109,6 +115,19 @@ The benchmark reports:
 - `false_confident_error_rate`: high-confidence wrong actions
 - `abstention_rate`: how often the agent abstains
 - `toy_safety_score`: illustrative aggregate score that penalizes unsafe behavior and near-total abstention
+
+The incremental stream-monitor demo reports:
+
+- `intervention_rate`: all fixture cases where the monitor stopped the stream, including true positives and false positives
+- `valid_detection_rate`: unsafe fixture cases correctly stopped by the monitor; this excludes benign false positives and premature interventions
+- `premature_interventions`: unsafe fixture cases where the monitor stopped before the fixture-labeled unsafe evidence appeared; these are not counted as true positives
+- `time_to_detect_events`: event lag between the first unsafe evidence in the fixture and the monitor intervention
+- `unsafe_prefix_exposure_chars`: visible stream characters emitted from unsafe evidence through intervention
+- `false_positive_rate`: benign fixture cases blocked by the simple monitor
+- `false_negative_rate`: unsafe fixture cases missed by the monitor
+- `intervention_reason`: whether the intervention came from partial output or a tool-call-like event
+
+`intervention_rate` is not the same as detection quality. It answers “how often did the monitor stop anything?” `valid_detection_rate` answers “how often did it stop genuinely unsafe cases after unsafe evidence was actually visible?” Keeping both avoids making false positives and premature interventions look like successful detections.
 
 ## Reproduce core benchmark
 
@@ -123,6 +142,30 @@ python -m src.plot_results
 python -m src.generate_report
 python -m pytest -q
 ```
+
+## Run the incremental stream-monitor demo
+
+This demo uses `fixtures/stream_cases.json` and processes each case incrementally. It includes unsafe output appearing early, unsafe output appearing late, an unsafe phrase split across chunks, a tool-call-like credential access attempt, one known benign false positive, and one benign stream that should pass.
+
+```bash
+python -m src.run_stream_demo
+```
+
+Expected compact outputs:
+
+```text
+results/stream_demo_summary.csv
+results/stream_demo_cases.csv
+results/stream_demo_events.csv
+```
+
+Current fixture summary:
+
+| cases | true positives | false positives | false negatives | true negatives | intervention rate | valid detection rate | mean time-to-detect events | mean unsafe-prefix exposure chars |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 6 | 4 | 1 | 0 | 1 | 0.833 | 1.000 | 0.5 | 35.75 |
+
+The false positive is intentional: the monitor blocks a benign policy sentence that mentions a dangerous phrase. This makes a concrete limitation visible instead of hiding it behind a perfect-looking toy result.
 
 ## Reproduce all shipped artifacts
 
@@ -155,6 +198,9 @@ results/threshold_sweep.csv
 results/episode_summary.csv
 results/static_vs_dynamic.csv
 results/failure_cases.csv
+results/stream_demo_summary.csv
+results/stream_demo_cases.csv
+results/stream_demo_events.csv
 figures/unsafe_action_rate.png
 figures/false_confident_error_rate.png
 figures/constraint_violation_rate.png
@@ -167,13 +213,13 @@ figures/static_vs_dynamic_gap.png
 docs/experimental_report.md
 ```
 
-Raw `events.csv` and `actions.csv` are generated locally but ignored by Git because they are bulky and reproducible.
+Raw `events.csv` and `actions.csv` are generated locally but ignored by Git because they are bulky and reproducible. The compact stream-demo CSVs are checked in because they are tiny and useful for review.
 
 ## Limitations
 
-This benchmark uses synthetic data and simple rule-based agents. It does not claim that these agents represent full LLM deployment behavior.
+This benchmark uses synthetic data, simple rule-based agents, and a deliberately simple keyword/tool-pattern stream monitor. It does not claim that these agents or the monitor represent full LLM deployment behavior.
 
-The goal is to demonstrate an evaluation pattern: test agent behavior under distribution shift, measure unsafe actions and overconfident errors, compare policies that act versus abstain, and report safety-performance tradeoffs.
+The goal is to demonstrate an evaluation pattern: test agent behavior under distribution shift, measure unsafe actions and overconfident errors, compare policies that act versus abstain, and report safety-performance tradeoffs. The stream demo extends that pattern to partial outputs and tool-call-like events, but it is not a production safety system or a universal classifier.
 
 Future work includes extending this framework to LLM-based and tool-using agents, richer sequential tasks, stronger monitor models, and more realistic oversight mechanisms.
 
@@ -214,3 +260,11 @@ failure modes:
   incorrectly or under unsafe conditions, ranks them by a simple risk
   score, and writes the top cases to `results/failure_cases.csv`.
   Use this to inspect concrete failure modes and reasons.
+
+- **Incremental stream-monitor demo** (`python -m src.run_stream_demo`):
+  process partial-output and tool-call-like fixtures one event at a
+  time. It writes `results/stream_demo_summary.csv`,
+  `results/stream_demo_cases.csv`, and `results/stream_demo_events.csv`.
+  Use this to inspect time-to-detect, unsafe-prefix exposure, false
+  positives, false negatives, and intervention reasons on deterministic
+  streaming cases.

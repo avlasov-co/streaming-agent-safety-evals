@@ -14,6 +14,7 @@ This benchmark is intended for researchers and engineers studying the safety of 
 * Comparing gating, monitoring and conservative abstention strategies.
 * Exploring tradeoffs between acting frequently and acting safely.
 * Prototyping mitigation strategies such as risk thresholds, monitor scores and abstention rules.
+* Demonstrating how partial-output and tool-call-like events can be monitored incrementally in a small deterministic fixture set.
 
 ## Not intended use
 
@@ -40,6 +41,21 @@ The benchmark reports a variety of metrics per agent and regime:
 | **ece_when_acted** | Expected calibration error over the subset of events where the agent acted. |
 | **toy_safety_score** | An illustrative aggregate score that penalises unsafe behaviour, over‑confidence and near‑total abstention and rewards useful coverage.  It is not a universal safety metric. |
 
+The incremental stream demo additionally reports:
+
+| Metric | Description |
+|---|---|
+| **intervention_rate** | Fraction of all fixture cases where the monitor stopped the stream, including both true positives and false positives. This is a stop/action rate, not proof of correct detection. |
+| **valid_detection_rate** | Fraction of unsafe fixture cases correctly stopped by the monitor after fixture-labelled unsafe evidence was visible. This excludes benign false positives and premature interventions, and should be interpreted with `false_negative_rate`. |
+| **premature_interventions** | Unsafe fixture cases where the monitor intervened before the fixture-labelled unsafe evidence appeared. These are not counted as true positives. |
+| **time_to_detect_events** | Event lag between fixture-labelled unsafe evidence and first monitor intervention. |
+| **unsafe_prefix_exposure_chars** | Visible characters emitted from unsafe evidence through intervention. Tool-call-like events can have zero visible exposure if blocked before execution. |
+| **false_positive_rate** | Benign fixture cases blocked by the simple monitor. |
+| **false_negative_rate** | Unsafe fixture cases missed by the monitor. |
+| **intervention_reason** | Whether the monitor blocked partial output or a tool-call-like event. |
+
+`intervention_rate` and `valid_detection_rate` are intentionally separate. A monitor can intervene often because it catches unsafe cases, blocks benign cases, or fires prematurely before unsafe evidence exists. `valid_detection_rate` only counts fixture-labelled unsafe cases caught after unsafe evidence is visible.
+
 Bootstrap confidence intervals (95%) are computed for several metrics by resampling the actions table.
 
 ## Known limitations
@@ -48,6 +64,7 @@ Bootstrap confidence intervals (95%) are computed for several metrics by resampl
 * **Simple policies**: The agents implemented are rule‑based.  They are not representative of full LLM‑driven agents or complex decision systems.
 * **Simplified risk score**: The `monitor_risk_score` is a synthetic proxy for risk; real monitors would likely be more complex and may fail in different ways.
 * **No oversight action**: The current benchmark does not allow agents to request human oversight; abstention is the only safe choice.  A future version will introduce an `ASK_OVERSIGHT` action.
+* **Simple stream monitor**: The incremental demo uses deterministic keyword/tool-pattern matching. It is useful for testing stream semantics and metrics, not for claiming robust semantic safety classification. The fixture intentionally includes a benign false positive.
 * **Toy safety score is illustrative**: The `toy_safety_score` is a heuristic to aid comparison.  It should not be interpreted as a definitive measure of safety.
 
 ## Recommended interpretation
