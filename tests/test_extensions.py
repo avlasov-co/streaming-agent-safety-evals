@@ -50,3 +50,13 @@ def test_run_episodes_writes_summary(tmp_path, monkeypatch):
     assert out.exists()
     df = pd.read_csv(out)
     assert not df.empty
+    assert "OversightSeekingAgent" in set(df["agent"])
+    assert "ShiftAwareRiskAgent" in set(df["agent"])
+    assert {
+        "oversight_request_rate",
+        "useful_oversight_rate",
+        "unnecessary_oversight_rate",
+        "repeated_unsafe_action_rate",
+        "avoidable_failure_rate",
+        "recovery_after_shift_rate",
+    }.issubset(df.columns)
