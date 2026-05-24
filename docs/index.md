@@ -16,6 +16,7 @@ Start here if you are reviewing the repository quickly.
 - [Threat model](threat_model.md)
 - [Evaluation card](eval_card.md)
 - [Static vs dynamic evaluation](static_vs_dynamic_eval.md)
+- [Oversight-aware episode evaluation](oversight_episode_eval.md)
 
 ## Methods and results
 
